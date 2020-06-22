@@ -129,11 +129,11 @@ public class CameraControl : MonoBehaviour {
 		Movement m = this.player.GetMovement();
 		float h = this.player.GetHorizontalSpeed();
 
-		if (playerScreenPos.x < mid && ps.facing < 0 && !ps.hasReceivedHorizontalForce && Mathf.Abs(h) >= (m.maxHorizontalSpeed-3f)) {
+		if (playerScreenPos.x < mid && ps.facing < 0 && Mathf.Abs(h) >= (m.maxHorizontalSpeed-3f)) {
 			this.switchedH = true;
 		}
 		
-		if (playerScreenPos.x > mid && ps.facing > 0 && !ps.hasReceivedHorizontalForce && Mathf.Abs(h) >= m.maxHorizontalSpeed-3f) {
+		if (playerScreenPos.x > mid && ps.facing > 0 && Mathf.Abs(h) >= m.maxHorizontalSpeed-3f) {
 			this.switchedH = false;
 		}
 
@@ -148,16 +148,14 @@ public class CameraControl : MonoBehaviour {
 		float mid = (down + up)/2f;
 
 		Vector3 playerScreenPos = cam.WorldToScreenPoint(player.transform.position);
-
-		PlayerState ps = this.player.GetState();
 		Movement m = this.player.GetMovement();
 		float v = this.player.GetVerticalSpeed();
 
-		if (playerScreenPos.y < mid && Mathf.Abs(v) >= 5f) { // on the way down, wants to see down
+		if (playerScreenPos.y < mid && Mathf.Abs(v) >= 5f) { // on the way down, want to see down
 			this.switchedV = true;
 		}
 		
-		if (playerScreenPos.y > mid && Mathf.Abs(v) >= 5f) { // on the way up, wants to see up
+		if (playerScreenPos.y > mid && Mathf.Abs(v) >= 5f) { // on the way up, want to see up
 			this.switchedV = false;
 		}
 	}

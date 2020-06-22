@@ -85,24 +85,14 @@ public class Player : MonoBehaviour {
 	public PlayerState GetState() {
 		PlayerState state = new PlayerState();
 
-		// state.hasReceivedHorizontalForce = this.hasReceivedHorizontalForce;
-		// state.hasReceivedVerticalForce = this.hasReceivedVerticalForce;
-		// state.isTouchingGround = this.isTouchingGround;
 		state.accelerationDuration = this.accelerationDuration;
-		state.canJump = this.canJump;
-		state.isJumping = this.isJumping;
 		state.facing = this.facing;
 
 		return state;
 	}
 
-	public Animator GetAnimator() {
-		return this.animator;
-	}
-
 	public Movement GetMovement() {
 		return this.playerMovement;
 	}
-
 
 }
