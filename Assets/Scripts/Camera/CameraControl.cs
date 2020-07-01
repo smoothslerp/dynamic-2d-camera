@@ -136,7 +136,6 @@ public class CameraControl : MonoBehaviour {
 		if (playerScreenPos.x > mid && ps.facing > 0 && Mathf.Abs(h) >= m.maxHorizontalSpeed-3f) {
 			this.switchedH = false;
 		}
-
 	}
 
 	private void SwitchVerticalAnchor () {

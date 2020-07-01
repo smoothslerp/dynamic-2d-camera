@@ -39,7 +39,7 @@ public class Player : MonoBehaviour {
 		jumpInput();
 		
 		this.ChangeFaceDirection(PlayerControl.instance.horizontalInput);
-		this.animator.SetBool("IsRunning", this.playerMovement.isTouchingGround && Mathf.Abs(PlayerControl.instance.horizontalInput) > 0.1f);
+		this.animator.SetBool("IsRunning", Mathf.Abs(PlayerControl.instance.horizontalInput) > 0.1f);
 
 		this.playerMovement.ReceiveJumpInput(this.isJumping, this.canJump);
 		this.playerMovement.ReceiveHorizontalInput(PlayerControl.instance.horizontalInput);
