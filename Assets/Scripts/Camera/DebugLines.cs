@@ -16,7 +16,7 @@ public class DebugLines : MonoBehaviour {
         this.cam = GetComponent<Camera>();
         
         try {
-            this.cc = this.transform.parent.GetComponent<CameraControl>();
+            this.cc = GetComponent<CameraControl>();
         } catch {
             Debug.Log("Unable to get camera control instance from parent");
         }
@@ -36,7 +36,7 @@ public class DebugLines : MonoBehaviour {
 
         if (!showCameraLines) return;
         
-        CameraLimits cL = cc.GetCurrentCameraLimits();
+        CameraLimits cL = cc.GetAnchoredLimits();
         
         GL.PushMatrix();
         GL.LoadPixelMatrix();

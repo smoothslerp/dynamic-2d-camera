@@ -5,10 +5,7 @@ using UnityEngine;
 public class CameraControl : MonoBehaviour {
 
 	/** In screen coordinates */
-	private float currentLeftLimit;
-	private float currentRightLimit;
-	private float currentUpLimit;
-	private float currentDownLimit;
+	private CameraLimits currrent;
 
 	[Range(1f, 10f)]	
 	public float leftLimit;
@@ -25,7 +22,6 @@ public class CameraControl : MonoBehaviour {
 	private bool switchedH = false;
 	private bool switchedV = false;
 	public float switchSpeed;
-	private Vector2 diff;
 	private static CameraControl instance; 
 
 	
@@ -42,13 +38,10 @@ public class CameraControl : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		player = GameObject.Find("Player").GetComponent<Player>();
-		camT = this.transform.GetChild(0);
+		camT = this.transform;
 		cam = camT.GetComponent<Camera>();
 
-		this.currentLeftLimit = this.leftLimit;
-		this.currentRightLimit = this.rightLimit;
-		this.currentUpLimit = this.upLimit;
-		this.currentDownLimit = this.downLimit;
+		this.currrent =  new CameraLimits(this.leftLimit, this.rightLimit, this.upLimit, this.downLimit);
 	}
 
 	public static CameraControl GetCameraControlInstance() {
@@ -66,8 +59,8 @@ public class CameraControl : MonoBehaviour {
 
 	private void horizontalCameraMovement () {
 
-		float minLine = (this.currentLeftLimit/10f) * this.cam.pixelWidth;
-		float maxLine = (this.currentRightLimit/10f) * this.cam.pixelWidth;
+		float minLine = (this.currrent.leftLimit/10f) * this.cam.pixelWidth;
+		float maxLine = (this.currrent.rightLimit/10f) * this.cam.pixelWidth;
 
 		Vector3 playerScreenPos = cam.WorldToScreenPoint(player.transform.position);
 
@@ -97,8 +90,8 @@ public class CameraControl : MonoBehaviour {
 
 	private void verticalCameraMovement () { 
 		
-		float minLine = (this.currentDownLimit/10f) * this.cam.pixelHeight;
-		float maxLine = (this.currentUpLimit/10f) * this.cam.pixelHeight;
+		float minLine = (this.currrent.downLimit/10f) * this.cam.pixelHeight;
+		float maxLine = (this.currrent.upLimit/10f) * this.cam.pixelHeight;
 
 		Vector3 playerScreenPos = cam.WorldToScreenPoint(player.transform.position);
 
@@ -117,7 +110,7 @@ public class CameraControl : MonoBehaviour {
 
 	private void SwitchHorizontalAnchor () {
 
-		CameraLimits cc = this.GetCameraLimits(); // for switching anchor we need the hard values
+		CameraLimits cc = this.GetAnchoredLimits(); // for switching anchor we need the hard values
 
 		float left = (cc.leftLimit/10f) * this.cam.pixelWidth;
 		float right = (cc.rightLimit/10f) * this.cam.pixelWidth;
@@ -140,7 +133,7 @@ public class CameraControl : MonoBehaviour {
 
 	private void SwitchVerticalAnchor () {
 
-		CameraLimits cc = this.GetCameraLimits(); // for switching anchor we need the hard values
+		CameraLimits cc = this.GetAnchoredLimits(); // for switching anchor we need the hard values
 		
 		float down = (cc.downLimit/10f) * this.cam.pixelHeight;
 		float up = (cc.upLimit/10f) * this.cam.pixelHeight;
@@ -159,7 +152,7 @@ public class CameraControl : MonoBehaviour {
 		}
 	}
 
-	public CameraLimits GetCameraLimits() {
+	public CameraLimits GetAnchoredLimits() {
 		float left = this.switchedH ? 10 - this.rightLimit : this.leftLimit;
 		float right = this.switchedH ? 10 - this.leftLimit : this.rightLimit;
 
@@ -170,25 +163,24 @@ public class CameraControl : MonoBehaviour {
 	}
 
 	public CameraLimits GetCurrentCameraLimits() {
-		return new CameraLimits(currentLeftLimit, currentRightLimit, currentUpLimit, currentDownLimit);
+		return this.currrent;
 	}
 
 	private void MoveCurrentLimits() {
 
-		CameraLimits cc = this.GetCameraLimits();
+		CameraLimits cc = this.GetAnchoredLimits();
 		
-		Vector2 leftRight = Vector2.Lerp(new Vector2(currentLeftLimit, currentRightLimit), new Vector2(cc.leftLimit, cc.rightLimit), this.switchSpeed * Time.deltaTime);
-		Vector2 downUp = Vector2.Lerp(new Vector2(currentDownLimit, currentUpLimit), new Vector2(cc.downLimit, cc.upLimit), this.switchSpeed * Time.deltaTime);
+		Vector2 leftRight = Vector2.Lerp(new Vector2(currrent.leftLimit, currrent.rightLimit), new Vector2(cc.leftLimit, cc.rightLimit), this.switchSpeed * Time.deltaTime);
+		Vector2 downUp = Vector2.Lerp(new Vector2(currrent.downLimit, currrent.upLimit), new Vector2(cc.downLimit, cc.upLimit), this.switchSpeed * Time.deltaTime);
 
-		this.currentLeftLimit = leftRight.x;
-		this.currentRightLimit = leftRight.y;
-		this.currentDownLimit = downUp.x;
-		this.currentUpLimit = downUp.y;
+		this.currrent.leftLimit = leftRight.x;
+		this.currrent.rightLimit = leftRight.y;
+		this.currrent.upLimit = downUp.y;
+		this.currrent.downLimit = downUp.x;
 		
 	}
 
 	private void UpdatePosition (Vector3 newPos) {
-		this.diff = new Vector2(newPos.x - this.transform.position.x, newPos.y - this.transform.position.y);
 		this.transform.position = newPos;
 	}
 

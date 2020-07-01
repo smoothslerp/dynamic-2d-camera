@@ -19,5 +19,4 @@ public class BottomTouch : MonoBehaviour {
             this.movement.isTouchingGround = false;
         }
     }
-    
 }
