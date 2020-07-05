@@ -30,8 +30,6 @@ public class CameraControl : MonoBehaviour {
 	private bool switchedH = false;
 	private bool switchedV = false;
 	private CameraLimits currrent;
-	private Transform camT;
-	private Camera cam;
 
 	void Awake() {
 		if (instance == null) {
@@ -47,7 +45,6 @@ public class CameraControl : MonoBehaviour {
 	}
 
 	void Start () {
-		cam = GetComponent<Camera>();
 		this.currrent =  new CameraLimits(this.leftLimit, this.rightLimit, this.upLimit, this.downLimit);
 	}
 
@@ -69,8 +66,10 @@ public class CameraControl : MonoBehaviour {
 
 	private void horizontalCameraMovement () {
 
-		float minLine = (this.currrent.leftLimit/10f) * this.cam.pixelWidth;
-		float maxLine = (this.currrent.rightLimit/10f) * this.cam.pixelWidth;
+		Camera cam = Camera.main;
+		
+		float minLine = (this.currrent.leftLimit/10f) * cam.pixelWidth;
+		float maxLine = (this.currrent.rightLimit/10f) * cam.pixelWidth;
 
 		Vector3 screenPos = cam.WorldToScreenPoint(this.tracking.position);
 
@@ -86,9 +85,11 @@ public class CameraControl : MonoBehaviour {
 	}
 
 	private void verticalCameraMovement () { 
+
+		Camera cam = Camera.main;
 		
-		float minLine = (this.currrent.downLimit/10f) * this.cam.pixelHeight;
-		float maxLine = (this.currrent.upLimit/10f) * this.cam.pixelHeight;
+		float minLine = (this.currrent.downLimit/10f) * cam.pixelHeight;
+		float maxLine = (this.currrent.upLimit/10f) * cam.pixelHeight;
 
 		Vector3 screenPos = cam.WorldToScreenPoint(this.tracking.position);
 
@@ -105,20 +106,22 @@ public class CameraControl : MonoBehaviour {
 
 	private void SwitchHorizontalAnchor () {
 
+		Camera cam = Camera.main;
 		CameraLimits cc = this.GetAnchoredLimits();
 
-		float left = (cc.leftLimit/10f) * this.cam.pixelWidth;
-		float right = (cc.rightLimit/10f) * this.cam.pixelWidth;
+		float left = (cc.leftLimit/10f) * cam.pixelWidth;
+		float right = (cc.rightLimit/10f) * cam.pixelWidth;
 
 		this.horizontalAnchorSwitcher(left, right, ref this.switchedH);
 	}
 
 	private void SwitchVerticalAnchor () {
 
+		Camera cam = Camera.main;
 		CameraLimits cc = this.GetAnchoredLimits();
 		
-		float down = (cc.downLimit/10f) * this.cam.pixelHeight;
-		float up = (cc.upLimit/10f) * this.cam.pixelHeight;
+		float down = (cc.downLimit/10f) * cam.pixelHeight;
+		float up = (cc.upLimit/10f) * cam.pixelHeight;
 		
 		this.verticalAnchorSwitcher(up, down, ref this.switchedV);
 	}
