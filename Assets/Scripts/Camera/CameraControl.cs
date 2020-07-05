@@ -30,7 +30,7 @@ public class CameraControl : MonoBehaviour {
 	private bool init = false; 
 	private bool switchedH = false;
 	private bool switchedV = false;
-	private CameraLimits currrent;
+	private CameraLimits current;
 
 	void Awake() {
 		if (instance == null) {
@@ -46,7 +46,7 @@ public class CameraControl : MonoBehaviour {
 	}
 
 	void Start () {
-		this.currrent =  new CameraLimits(this.leftLimit, this.rightLimit, this.upLimit, this.downLimit);
+		this.current = new CameraLimits(this.leftLimit, this.rightLimit, this.upLimit, this.downLimit);
 	}
 
 	private void FixedUpdate() {
@@ -69,8 +69,8 @@ public class CameraControl : MonoBehaviour {
 
 		Camera cam = Camera.main;
 		
-		float minLine = (this.currrent.leftLimit/10f) * cam.pixelWidth;
-		float maxLine = (this.currrent.rightLimit/10f) * cam.pixelWidth;
+		float minLine = (this.current.leftLimit/10f) * cam.pixelWidth;
+		float maxLine = (this.current.rightLimit/10f) * cam.pixelWidth;
 
 		Vector3 screenPos = cam.WorldToScreenPoint(this.tracking.position);
 
@@ -89,8 +89,8 @@ public class CameraControl : MonoBehaviour {
 
 		Camera cam = Camera.main;
 		
-		float minLine = (this.currrent.downLimit/10f) * cam.pixelHeight;
-		float maxLine = (this.currrent.upLimit/10f) * cam.pixelHeight;
+		float minLine = (this.current.downLimit/10f) * cam.pixelHeight;
+		float maxLine = (this.current.upLimit/10f) * cam.pixelHeight;
 
 		Vector3 screenPos = cam.WorldToScreenPoint(this.tracking.position);
 
@@ -138,20 +138,20 @@ public class CameraControl : MonoBehaviour {
 	}
 
 	public CameraLimits GetCurrentCameraLimits() {
-		return this.currrent;
+		return new CameraLimits(this.current); // return copy
 	}
 
 	private void MoveCurrentLimits() {
 
 		CameraLimits cc = this.GetAnchoredLimits();
 		
-		Vector2 leftRight = Vector2.Lerp(new Vector2(currrent.leftLimit, currrent.rightLimit), new Vector2(cc.leftLimit, cc.rightLimit), this.switchSpeed);
-		Vector2 downUp = Vector2.Lerp(new Vector2(currrent.downLimit, currrent.upLimit), new Vector2(cc.downLimit, cc.upLimit), this.switchSpeed);
+		Vector2 leftRight = Vector2.Lerp(new Vector2(current.leftLimit, current.rightLimit), new Vector2(cc.leftLimit, cc.rightLimit), this.switchSpeed);
+		Vector2 downUp = Vector2.Lerp(new Vector2(current.downLimit, current.upLimit), new Vector2(cc.downLimit, cc.upLimit), this.switchSpeed);
 
-		this.currrent.leftLimit = leftRight.x;
-		this.currrent.rightLimit = leftRight.y;
-		this.currrent.upLimit = downUp.y;
-		this.currrent.downLimit = downUp.x;
+		this.current.leftLimit = leftRight.x;
+		this.current.rightLimit = leftRight.y;
+		this.current.downLimit = downUp.x;
+		this.current.upLimit = downUp.y;
 	}
 
 }

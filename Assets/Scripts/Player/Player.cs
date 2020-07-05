@@ -74,11 +74,11 @@ public class Player : MonoBehaviour {
 
 		Vector3 playerScreenPos = Camera.main.WorldToScreenPoint(this.transform.position);
 		
-		if (playerScreenPos.x < mid && this.facing < 0 && Mathf.Abs(this.rb.velocity.x) >= (this.playerMovement.maxHorizontalSpeed-3f)) {
+		if (this.facing < 0 && Mathf.Abs(this.rb.velocity.x) >= (this.playerMovement.maxHorizontalSpeed/2f)) {
 			switchedH = true;
 		}
 		
-		if (playerScreenPos.x > mid && this.facing > 0 && Mathf.Abs(this.rb.velocity.x) >= this.playerMovement.maxHorizontalSpeed-3f) {
+		if (this.facing > 0 && Mathf.Abs(this.rb.velocity.x) >= this.playerMovement.maxHorizontalSpeed/2f) {
 			switchedH = false;
 		}
 	}

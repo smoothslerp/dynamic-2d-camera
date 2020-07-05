@@ -15,7 +15,7 @@ public class DebugLines : MonoBehaviour {
         try {
             this.cc = GetComponent<CameraControl>();
         } catch {
-            Debug.Log("Unable to get camera control instance from parent");
+            Debug.Log("Unable to get camera control instance");
         }
 
         if (!mat) {
@@ -27,7 +27,7 @@ public class DebugLines : MonoBehaviour {
 
     private void OnPostRender() {
         CameraDebugLines();
-	}
+    }
 
     void CameraDebugLines() {
 
@@ -38,7 +38,6 @@ public class DebugLines : MonoBehaviour {
         GL.PushMatrix();
         GL.LoadPixelMatrix();
 
-        // activate the first shader pass (in this case we know it is the only pass)
         mat.SetPass(0);
 
         GL.Begin(GL.LINES);

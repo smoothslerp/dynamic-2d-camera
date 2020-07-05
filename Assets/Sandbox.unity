@@ -2705,7 +2705,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51c862d61cefb6d4aa6c33b3054819f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mat: {fileID: 0}
   showCameraLines: 1
 --- !u!1 &491488561
 GameObject:
@@ -13642,9 +13641,7 @@ MonoBehaviour:
   rightLimit: 3.74
   upLimit: 4.76
   downLimit: 2.72
-  stdDiff: 100
-  switchSlowDownRate: 5
-  switchSpeed: 10
+  switchSpeed: 0.117
   speed: 0.05
 --- !u!20 &8902305689308287532
 Camera:
