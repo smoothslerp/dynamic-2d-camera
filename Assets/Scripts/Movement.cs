@@ -3,6 +3,7 @@ using UnityEngine;
 // movement code applied to the GameObject including jumping and gravity
 public class Movement: MonoBehaviour {
 
+    private bool init = false; 
     private Rigidbody2D rb; // reference to the rigidbody being controlled
     private float accelerationDuration;
     private float maxAccelerationDuration;
@@ -21,17 +22,16 @@ public class Movement: MonoBehaviour {
     public float inAirAccMultiplier;
     public bool isTouchingGround = true;
 
-    /** EVENTS */
-	public delegate void BlastImpactDelegate(float duration);
-    public static event BlastImpactDelegate OnBlastImpact;
-
-
     public void Init(Rigidbody2D rb) {
+        this.maxAccelerationDuration = PlateauCurve.getTime(maxHorizontalSpeed, maxHorizontalSpeed, 0, this.kAcc);
         this.rb = rb;
-        this.maxAccelerationDuration = 100f;
+        this.init = rb != null;
     }
 
     void FixedUpdate() {
+
+        if (!init) Debug.Log("Movement has not been completely initialized!");
+
         accelerate();   
         jump();
     }

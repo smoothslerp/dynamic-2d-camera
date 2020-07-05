@@ -8,9 +8,7 @@ public class Player : MonoBehaviour {
 	private int facing = 1;
 	[HideInInspector]
 	private bool canJump = false;
-	private bool canShoot = true;
 	private bool isJumping = false;
-	private float accelerationDuration = 0f;
 
 	/** COMPONENTS */
 	private Rigidbody2D rb;
@@ -27,15 +25,14 @@ public class Player : MonoBehaviour {
 		this.playerMovement = GetComponent<Movement>();
 		this.playerMovement.Init(this.rb);
 
-		this.animator.SetBool("IsRunning", false);
 		this.spriteRenderer = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
+
+		CameraControl.instance.Init(this.transform, this.HorizontalAnchorSwitcher, this.VerticalAnchorSwitcher);
+		
+		this.animator.SetBool("IsRunning", false);
 	}
 
 	void Update() {
-		handleInputs();
-	}
-
-	void handleInputs () {
 		jumpInput();
 		
 		this.ChangeFaceDirection(PlayerControl.instance.horizontalInput);
@@ -54,7 +51,6 @@ public class Player : MonoBehaviour {
 			isJumping = false;
 		}
 
-		// when in the air, should not be able to jump again
 		if (!this.playerMovement.isTouchingGround && (PlayerControl.instance.jumpReleased || this.rb.velocity.y < 0f)) {
 			this.canJump = false;
 		}
@@ -63,7 +59,6 @@ public class Player : MonoBehaviour {
 			if (!PlayerControl.instance.jumpPressed) this.canJump = true;
 		}
 	}
-
 	
 	public void ChangeFaceDirection(float horizontalInput) {
 		
@@ -72,27 +67,35 @@ public class Player : MonoBehaviour {
 		this.facing = horizontalInput > 0 ? 1 : -1;
 		this.spriteRenderer.flipX = facing < 0 ? true : false;
 	}
+	
+	// Passed as delegate to camera control
+	public void HorizontalAnchorSwitcher(float left, float right, ref bool switchedH) {
+		float mid = (left + right)/2f;
 
-
-	public float GetHorizontalSpeed() {
-		return this.rb.velocity.x;
+		Vector3 playerScreenPos = Camera.main.WorldToScreenPoint(this.transform.position);
+		
+		if (playerScreenPos.x < mid && this.facing < 0 && Mathf.Abs(this.rb.velocity.x) >= (this.playerMovement.maxHorizontalSpeed-3f)) {
+			switchedH = true;
+		}
+		
+		if (playerScreenPos.x > mid && this.facing > 0 && Mathf.Abs(this.rb.velocity.x) >= this.playerMovement.maxHorizontalSpeed-3f) {
+			switchedH = false;
+		}
 	}
 
-	public float GetVerticalSpeed() {
-		return this.rb.velocity.y;
-	}
+	// Passed as delegate to camera control	
+	public void VerticalAnchorSwitcher(float up, float down, ref bool switchedV) {
+		float mid = (up + down)/2f;
 
-	public PlayerState GetState() {
-		PlayerState state = new PlayerState();
-
-		state.accelerationDuration = this.accelerationDuration;
-		state.facing = this.facing;
-
-		return state;
-	}
-
-	public Movement GetMovement() {
-		return this.playerMovement;
+		Vector3 playerScreenPos = Camera.main.WorldToScreenPoint(this.transform.position);
+		
+		if (playerScreenPos.y < mid && Mathf.Abs(this.rb.velocity.y) >= this.playerMovement.maxVerticalSpeed) { // on the way down, want to see down
+			switchedV = true;
+		}
+		
+		if (playerScreenPos.y > mid && Mathf.Abs(this.rb.velocity.y) >= this.playerMovement.maxVerticalSpeed/4f) { // on the way up, want to see up
+			switchedV = false;
+		}
 	}
 
 }

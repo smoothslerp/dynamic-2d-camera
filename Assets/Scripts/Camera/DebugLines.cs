@@ -6,12 +6,9 @@ public class DebugLines : MonoBehaviour {
     Camera cam;
     CameraControl cc;
 
-    private bool damaged = false;
-
-    public Material mat;
+    private Material mat;
     public bool showCameraLines;
     
-    // Start is called before the first frame update
     void Start() {
         this.cam = GetComponent<Camera>();
         
@@ -29,14 +26,14 @@ public class DebugLines : MonoBehaviour {
     }
 
     private void OnPostRender() {
-        CameraDebugLines(this.showCameraLines);
+        CameraDebugLines();
 	}
 
-    void CameraDebugLines(bool showCameraLines) {
+    void CameraDebugLines() {
 
         if (!showCameraLines) return;
         
-        CameraLimits cL = cc.GetAnchoredLimits();
+        CameraLimits cL = cc.GetCurrentCameraLimits();
         
         GL.PushMatrix();
         GL.LoadPixelMatrix();
@@ -70,17 +67,5 @@ public class DebugLines : MonoBehaviour {
         GL.End();
         GL.PopMatrix();
     }
-
-    void OnEnable() {
-        RenderPipelineManager.endCameraRendering += RenderPipelineManager_endCameraRendering;
-     }
-
-     void OnDisable() {
-        RenderPipelineManager.endCameraRendering -= RenderPipelineManager_endCameraRendering;
-     }
-
-     private void RenderPipelineManager_endCameraRendering(ScriptableRenderContext context, Camera camera) {
-         OnPostRender();
-     }
 
 }

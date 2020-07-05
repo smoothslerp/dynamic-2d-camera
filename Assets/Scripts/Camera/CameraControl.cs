@@ -1,12 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CameraControl : MonoBehaviour {
 
-	/** In screen coordinates */
-	private CameraLimits currrent;
-
+	/** SETTINGS */
 	[Range(1f, 10f)]	
 	public float leftLimit;
 	[Range(1f, 10f)]	
@@ -15,17 +11,25 @@ public class CameraControl : MonoBehaviour {
 	public float upLimit;
 	[Range(1f, 10f)]	
 	public float downLimit;
-	private Player player;
-	[Range(50f, 500f)]
-	public float stdDiff;
-	public float switchSlowDownRate;
+	public float switchSpeed;
+	[Range(0f, 1f)]
+	public float speed; 
+
+	/** INSTANCES  */
+	public static CameraControl instance; 
+	private Transform tracking;
+
+	/** DELEGATES */
+	public delegate void HorizontalAnchorSwitcher(float left, float right, ref bool switchedH);
+	public HorizontalAnchorSwitcher horizontalAnchorSwitcher;
+	public delegate void VerticalAnchorSwitcher(float up, float down, ref bool swtichedV);
+	public VerticalAnchorSwitcher verticalAnchorSwitcher;
+	
+	/** STATE */
+	private bool init = false; 
 	private bool switchedH = false;
 	private bool switchedV = false;
-	public float switchSpeed;
-	private static CameraControl instance; 
-
-	
-	// -------------- GET CAMERA FROM CHILD OBJECT -------------- //
+	private CameraLimits currrent;
 	private Transform camT;
 	private Camera cam;
 
@@ -35,24 +39,30 @@ public class CameraControl : MonoBehaviour {
 		}
 	}
 
-	// Use this for initialization
-	void Start () {
-		player = GameObject.Find("Player").GetComponent<Player>();
-		camT = this.transform;
-		cam = camT.GetComponent<Camera>();
+	public void Init(Transform tracking, HorizontalAnchorSwitcher hSwitcher, VerticalAnchorSwitcher vSwitcher) {
+		this.tracking = tracking;
+		this.horizontalAnchorSwitcher = hSwitcher;
+		this.verticalAnchorSwitcher = vSwitcher;
+		this.init = this.tracking != null && this.horizontalAnchorSwitcher != null && verticalAnchorSwitcher != null;
+	}
 
+	void Start () {
+		cam = GetComponent<Camera>();
 		this.currrent =  new CameraLimits(this.leftLimit, this.rightLimit, this.upLimit, this.downLimit);
 	}
 
-	public static CameraControl GetCameraControlInstance() {
-		return instance;
-	}
-	
 	private void FixedUpdate() {
+
+		if (!this.init) {
+			Debug.LogError("Camera Control has not been completely intialized!");
+			return;
+		}
+
 		SwitchHorizontalAnchor();
 		SwitchVerticalAnchor();
+
 		verticalCameraMovement();
-		horizontalCameraMovement();	
+		horizontalCameraMovement();
 
 		MoveCurrentLimits();
 	}
@@ -62,30 +72,17 @@ public class CameraControl : MonoBehaviour {
 		float minLine = (this.currrent.leftLimit/10f) * this.cam.pixelWidth;
 		float maxLine = (this.currrent.rightLimit/10f) * this.cam.pixelWidth;
 
-		Vector3 playerScreenPos = cam.WorldToScreenPoint(player.transform.position);
+		Vector3 screenPos = cam.WorldToScreenPoint(this.tracking.position);
 
-		if (playerScreenPos.x > maxLine) {
-			float diff = playerScreenPos.x - maxLine;
-
-			float standardDiff = this.stdDiff;
-			// if (Mathf.Abs(diff) > this.cam.pixelWidth/30f) {
-			// 	standardDiff *= this.switchSlowDownRate;
-			// }
-
-			Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(diff, 0f, 0f);
-			this.UpdatePosition(Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), Mathf.Abs(diff)/standardDiff));
-			
-		} else if (playerScreenPos.x < minLine) {
-			float diff = playerScreenPos.x - minLine;
-
-			float standardDiff = this.stdDiff;
-			if (Mathf.Abs(diff) > this.cam.pixelWidth/30f) {
-				standardDiff *= this.switchSlowDownRate;
-			}
-
-			Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(diff, 0f, 0f);	
-			this.UpdatePosition(Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), Mathf.Abs(diff)/standardDiff));
+		float diff = 0;
+		if (screenPos.x > maxLine) {
+			diff = screenPos.x - maxLine;
+		} else  {
+			diff = screenPos.x - minLine;
 		}
+
+		Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(diff, 0f, 0f);
+		this.transform.position = Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), speed);
 	}
 
 	private void verticalCameraMovement () { 
@@ -93,63 +90,37 @@ public class CameraControl : MonoBehaviour {
 		float minLine = (this.currrent.downLimit/10f) * this.cam.pixelHeight;
 		float maxLine = (this.currrent.upLimit/10f) * this.cam.pixelHeight;
 
-		Vector3 playerScreenPos = cam.WorldToScreenPoint(player.transform.position);
+		Vector3 screenPos = cam.WorldToScreenPoint(this.tracking.position);
 
-		if (playerScreenPos.y > maxLine) {
-			float diff = playerScreenPos.y - maxLine;
-
-			Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(0f, diff, 0f);
-			this.UpdatePosition(Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), Mathf.Abs(diff)/this.stdDiff));
-		} else if (playerScreenPos.y < minLine ) {
-			float diff = playerScreenPos.y - minLine;
-
-			Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(0f, diff, 0f);	
-			this.UpdatePosition(Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), Mathf.Abs(diff)/this.stdDiff));
+		float diff = 0;
+		if (screenPos.y > maxLine) {
+			diff = screenPos.y - maxLine;
+		} else if (screenPos.y < minLine ) {
+			diff = screenPos.y - minLine;
 		}
+
+		Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(0f, diff, 0f);	
+		this.transform.position = Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), speed);
 	}
 
 	private void SwitchHorizontalAnchor () {
 
-		CameraLimits cc = this.GetAnchoredLimits(); // for switching anchor we need the hard values
+		CameraLimits cc = this.GetAnchoredLimits();
 
 		float left = (cc.leftLimit/10f) * this.cam.pixelWidth;
 		float right = (cc.rightLimit/10f) * this.cam.pixelWidth;
-		float mid = (left + right)/2f;
 
-		Vector3 playerScreenPos = cam.WorldToScreenPoint(player.transform.position);
-
-		PlayerState ps = this.player.GetState();
-		Movement m = this.player.GetMovement();
-		float h = this.player.GetHorizontalSpeed();
-
-		if (playerScreenPos.x < mid && ps.facing < 0 && Mathf.Abs(h) >= (m.maxHorizontalSpeed-3f)) {
-			this.switchedH = true;
-		}
-		
-		if (playerScreenPos.x > mid && ps.facing > 0 && Mathf.Abs(h) >= m.maxHorizontalSpeed-3f) {
-			this.switchedH = false;
-		}
+		this.horizontalAnchorSwitcher(left, right, ref this.switchedH);
 	}
 
 	private void SwitchVerticalAnchor () {
 
-		CameraLimits cc = this.GetAnchoredLimits(); // for switching anchor we need the hard values
+		CameraLimits cc = this.GetAnchoredLimits();
 		
 		float down = (cc.downLimit/10f) * this.cam.pixelHeight;
 		float up = (cc.upLimit/10f) * this.cam.pixelHeight;
-		float mid = (down + up)/2f;
-
-		Vector3 playerScreenPos = cam.WorldToScreenPoint(player.transform.position);
-		Movement m = this.player.GetMovement();
-		float v = this.player.GetVerticalSpeed();
-
-		if (playerScreenPos.y < mid && Mathf.Abs(v) >= 5f) { // on the way down, want to see down
-			this.switchedV = true;
-		}
 		
-		if (playerScreenPos.y > mid && Mathf.Abs(v) >= 5f) { // on the way up, want to see up
-			this.switchedV = false;
-		}
+		this.verticalAnchorSwitcher(up, down, ref this.switchedV);
 	}
 
 	public CameraLimits GetAnchoredLimits() {
@@ -177,11 +148,6 @@ public class CameraControl : MonoBehaviour {
 		this.currrent.rightLimit = leftRight.y;
 		this.currrent.upLimit = downUp.y;
 		this.currrent.downLimit = downUp.x;
-		
-	}
-
-	private void UpdatePosition (Vector3 newPos) {
-		this.transform.position = newPos;
 	}
 
 }
