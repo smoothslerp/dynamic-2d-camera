@@ -11,6 +11,7 @@ public class CameraControl : MonoBehaviour {
 	public float upLimit;
 	[Range(1f, 10f)]	
 	public float downLimit;
+	[Range(0f, 1f)]
 	public float switchSpeed;
 	[Range(0f, 1f)]
 	public float speed; 
@@ -81,7 +82,7 @@ public class CameraControl : MonoBehaviour {
 		}
 
 		Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(diff, 0f, 0f);
-		this.transform.position = Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), speed);
+		this.transform.position = Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), this.speed);
 	}
 
 	private void verticalCameraMovement () { 
@@ -101,7 +102,7 @@ public class CameraControl : MonoBehaviour {
 		}
 
 		Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(0f, diff, 0f);	
-		this.transform.position = Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), speed);
+		this.transform.position = Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), this.speed);
 	}
 
 	private void SwitchHorizontalAnchor () {
@@ -144,8 +145,8 @@ public class CameraControl : MonoBehaviour {
 
 		CameraLimits cc = this.GetAnchoredLimits();
 		
-		Vector2 leftRight = Vector2.Lerp(new Vector2(currrent.leftLimit, currrent.rightLimit), new Vector2(cc.leftLimit, cc.rightLimit), this.switchSpeed * Time.deltaTime);
-		Vector2 downUp = Vector2.Lerp(new Vector2(currrent.downLimit, currrent.upLimit), new Vector2(cc.downLimit, cc.upLimit), this.switchSpeed * Time.deltaTime);
+		Vector2 leftRight = Vector2.Lerp(new Vector2(currrent.leftLimit, currrent.rightLimit), new Vector2(cc.leftLimit, cc.rightLimit), this.switchSpeed);
+		Vector2 downUp = Vector2.Lerp(new Vector2(currrent.downLimit, currrent.upLimit), new Vector2(cc.downLimit, cc.upLimit), this.switchSpeed);
 
 		this.currrent.leftLimit = leftRight.x;
 		this.currrent.rightLimit = leftRight.y;
