@@ -70,8 +70,6 @@ public class Player : MonoBehaviour {
 	
 	// Passed as delegate to camera control
 	public void HorizontalAnchorSwitcher(float left, float right, ref bool switchedH) {
-		float mid = (left + right)/2f;
-
 		Vector3 playerScreenPos = Camera.main.WorldToScreenPoint(this.transform.position);
 		
 		if (this.facing < 0 && Mathf.Abs(this.rb.velocity.x) >= (this.playerMovement.maxHorizontalSpeed/2f)) {

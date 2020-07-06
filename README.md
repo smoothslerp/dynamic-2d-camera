@@ -1,2 +1,4 @@
 # camera-box
-a 2D camera follower
+A simple, extensible camera for 2D games
+
+http://smoothslerp.com/dynamic-2d-camera

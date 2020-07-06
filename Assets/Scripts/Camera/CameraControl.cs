@@ -3,28 +3,27 @@
 public class CameraControl : MonoBehaviour {
 
 	/** SETTINGS */
-	[Range(1f, 10f)]	
+	[Range(0.1f, 1f)]	
 	public float leftLimit;
-	[Range(1f, 10f)]	
+	[Range(0.1f, 1f)]	
 	public float rightLimit;
-	[Range(1f, 10f)]	
+	[Range(0.1f, 1f)]	
 	public float upLimit;
-	[Range(1f, 10f)]	
+	[Range(0.1f, 1)]	
 	public float downLimit;
 	[Range(0f, 1f)]
-	public float switchSpeed;
-	[Range(0f, 1f)]
 	public float speed; 
+	[Range(0f, 1f)]
+	public float switchSpeed;
 
 	/** INSTANCES  */
 	public static CameraControl instance; 
 	private Transform tracking;
 
 	/** DELEGATES */
-	public delegate void HorizontalAnchorSwitcher(float left, float right, ref bool switchedH);
-	public HorizontalAnchorSwitcher horizontalAnchorSwitcher;
-	public delegate void VerticalAnchorSwitcher(float up, float down, ref bool swtichedV);
-	public VerticalAnchorSwitcher verticalAnchorSwitcher;
+	public delegate void AnchorSwitcher(float min, float max, ref bool switchedHV);
+	public AnchorSwitcher horizontalAnchorSwitcher;
+	public AnchorSwitcher verticalAnchorSwitcher;
 	
 	/** STATE */
 	private bool init = false; 
@@ -38,7 +37,7 @@ public class CameraControl : MonoBehaviour {
 		}
 	}
 
-	public void Init(Transform tracking, HorizontalAnchorSwitcher hSwitcher, VerticalAnchorSwitcher vSwitcher) {
+	public void Init(Transform tracking, AnchorSwitcher hSwitcher, AnchorSwitcher vSwitcher) {
 		this.tracking = tracking;
 		this.horizontalAnchorSwitcher = hSwitcher;
 		this.verticalAnchorSwitcher = vSwitcher;
@@ -55,12 +54,11 @@ public class CameraControl : MonoBehaviour {
 			Debug.LogError("Camera Control has not been completely intialized!");
 			return;
 		}
+		verticalCameraMovement();
+		horizontalCameraMovement();
 
 		SwitchHorizontalAnchor();
 		SwitchVerticalAnchor();
-
-		verticalCameraMovement();
-		horizontalCameraMovement();
 
 		MoveCurrentLimits();
 	}
@@ -69,17 +67,17 @@ public class CameraControl : MonoBehaviour {
 
 		Camera cam = Camera.main;
 		
-		float minLine = (this.current.leftLimit/10f) * cam.pixelWidth;
-		float maxLine = (this.current.rightLimit/10f) * cam.pixelWidth;
+		float minLine = (this.current.leftLimit) * cam.pixelWidth;
+		float maxLine = (this.current.rightLimit) * cam.pixelWidth;
 
 		Vector3 screenPos = cam.WorldToScreenPoint(this.tracking.position);
 
 		float diff = 0;
 		if (screenPos.x > maxLine) {
 			diff = screenPos.x - maxLine;
-		} else  {
+		} else if (screenPos.x < minLine)  {
 			diff = screenPos.x - minLine;
-		}
+		} else return;
 
 		Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(diff, 0f, 0f);
 		this.transform.position = Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), this.speed);
@@ -89,17 +87,17 @@ public class CameraControl : MonoBehaviour {
 
 		Camera cam = Camera.main;
 		
-		float minLine = (this.current.downLimit/10f) * cam.pixelHeight;
-		float maxLine = (this.current.upLimit/10f) * cam.pixelHeight;
+		float minLine = (this.current.downLimit) * cam.pixelHeight;
+		float maxLine = (this.current.upLimit) * cam.pixelHeight;
 
 		Vector3 screenPos = cam.WorldToScreenPoint(this.tracking.position);
 
 		float diff = 0;
 		if (screenPos.y > maxLine) {
 			diff = screenPos.y - maxLine;
-		} else if (screenPos.y < minLine ) {
+		} else if (screenPos.y < minLine) {
 			diff = screenPos.y - minLine;
-		}
+		} else return;
 
 		Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(0f, diff, 0f);	
 		this.transform.position = Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), this.speed);
@@ -110,8 +108,8 @@ public class CameraControl : MonoBehaviour {
 		Camera cam = Camera.main;
 		CameraLimits cc = this.GetAnchoredLimits();
 
-		float left = (cc.leftLimit/10f) * cam.pixelWidth;
-		float right = (cc.rightLimit/10f) * cam.pixelWidth;
+		float left = (cc.leftLimit) * cam.pixelWidth;
+		float right = (cc.rightLimit) * cam.pixelWidth;
 
 		this.horizontalAnchorSwitcher(left, right, ref this.switchedH);
 	}
@@ -121,18 +119,18 @@ public class CameraControl : MonoBehaviour {
 		Camera cam = Camera.main;
 		CameraLimits cc = this.GetAnchoredLimits();
 		
-		float down = (cc.downLimit/10f) * cam.pixelHeight;
-		float up = (cc.upLimit/10f) * cam.pixelHeight;
+		float down = (cc.downLimit) * cam.pixelHeight;
+		float up = (cc.upLimit) * cam.pixelHeight;
 		
 		this.verticalAnchorSwitcher(up, down, ref this.switchedV);
 	}
 
 	public CameraLimits GetAnchoredLimits() {
-		float left = this.switchedH ? 10 - this.rightLimit : this.leftLimit;
-		float right = this.switchedH ? 10 - this.leftLimit : this.rightLimit;
+		float left = this.switchedH ? 1 - this.rightLimit : this.leftLimit;
+		float right = this.switchedH ? 1 - this.leftLimit : this.rightLimit;
 
-		float down  = this.switchedV ? 10 - this.upLimit : this.downLimit;
-		float up  = this.switchedV ? 10 - this.downLimit : this.upLimit;
+		float down  = this.switchedV ? 1 - this.upLimit : this.downLimit;
+		float up  = this.switchedV ? 1 - this.downLimit : this.upLimit;
 
 		return new CameraLimits(left, right, up, down);
 	}
@@ -145,13 +143,11 @@ public class CameraControl : MonoBehaviour {
 
 		CameraLimits cc = this.GetAnchoredLimits();
 		
-		Vector2 leftRight = Vector2.Lerp(new Vector2(current.leftLimit, current.rightLimit), new Vector2(cc.leftLimit, cc.rightLimit), this.switchSpeed);
-		Vector2 downUp = Vector2.Lerp(new Vector2(current.downLimit, current.upLimit), new Vector2(cc.downLimit, cc.upLimit), this.switchSpeed);
+		this.current.leftLimit = Mathf.Lerp(this.current.leftLimit, cc.leftLimit, this.switchSpeed);
+		this.current.rightLimit = Mathf.Lerp(this.current.rightLimit, cc.rightLimit, this.switchSpeed);
+		this.current.downLimit = Mathf.Lerp(this.current.downLimit, cc.downLimit, this.switchSpeed);
+		this.current.upLimit = Mathf.Lerp(this.current.upLimit, cc.upLimit, this.switchSpeed);
 
-		this.current.leftLimit = leftRight.x;
-		this.current.rightLimit = leftRight.y;
-		this.current.downLimit = downUp.x;
-		this.current.upLimit = downUp.y;
 	}
 
 }

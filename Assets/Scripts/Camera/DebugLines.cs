@@ -44,24 +44,24 @@ public class DebugLines : MonoBehaviour {
         // vertical lines to depict horizontal limits
         //left
         GL.Color(Color.red);
-        GL.Vertex3(this.cam.pixelWidth * (cL.leftLimit/10f), 0f, 0f);
-        GL.Vertex3(this.cam.pixelWidth * (cL.leftLimit/10f), this.cam.pixelHeight, 0f);
+        GL.Vertex3(this.cam.pixelWidth * (cL.leftLimit), 0f, 0f);
+        GL.Vertex3(this.cam.pixelWidth * (cL.leftLimit), this.cam.pixelHeight, 0f);
         
         //right
         GL.Color(Color.green);
-        GL.Vertex3(this.cam.pixelWidth * (cL.rightLimit/10f), 0f, 0f);
-        GL.Vertex3(this.cam.pixelWidth * (cL.rightLimit/10f), this.cam.pixelHeight, 0f);
+        GL.Vertex3(this.cam.pixelWidth * (cL.rightLimit), 0f, 0f);
+        GL.Vertex3(this.cam.pixelWidth * (cL.rightLimit), this.cam.pixelHeight, 0f);
 
         // horizontal lines to depict vertical limits
         // up
         GL.Color(Color.green);
-        GL.Vertex3(0f, this.cam.pixelHeight * (cL.upLimit/10f), 0f);
-        GL.Vertex3(this.cam.pixelWidth, this.cam.pixelHeight * (cL.upLimit/10f), 0f);
+        GL.Vertex3(0f, this.cam.pixelHeight * (cL.upLimit), 0f);
+        GL.Vertex3(this.cam.pixelWidth, this.cam.pixelHeight * (cL.upLimit), 0f);
 
         //down
         GL.Color(Color.red);
-        GL.Vertex3(0f, this.cam.pixelHeight * (cL.downLimit/10f), 0f);
-        GL.Vertex3(this.cam.pixelWidth, this.cam.pixelHeight * (cL.downLimit/10f), 0f);
+        GL.Vertex3(0f, this.cam.pixelHeight * (cL.downLimit), 0f);
+        GL.Vertex3(this.cam.pixelWidth, this.cam.pixelHeight * (cL.downLimit), 0f);
 
         GL.End();
         GL.PopMatrix();

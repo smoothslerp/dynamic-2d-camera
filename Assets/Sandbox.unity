@@ -3467,7 +3467,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4412287756825914, guid: cd1c8bd32aa5cdb43b898064ab4cd945, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -5.32
+      value: -7.49
       objectReference: {fileID: 0}
     - target: {fileID: 4412287756825914, guid: cd1c8bd32aa5cdb43b898064ab4cd945, type: 3}
       propertyPath: m_LocalPosition.z
@@ -13637,12 +13637,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a4ea730da78cdd47b3f34e85da09ff2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftLimit: 1.6
-  rightLimit: 3.74
-  upLimit: 4.76
-  downLimit: 2.72
-  switchSpeed: 0.117
+  leftLimit: 0.16
+  rightLimit: 0.374
+  upLimit: 0.476
+  downLimit: 0.272
   speed: 0.05
+  switchSpeed: 0.117
 --- !u!20 &8902305689308287532
 Camera:
   m_ObjectHideFlags: 0
