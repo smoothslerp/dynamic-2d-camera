@@ -67,15 +67,15 @@ public class CameraControl : MonoBehaviour {
 
 		Camera cam = Camera.main;
 		
-		float minLine = (this.current.leftLimit) * cam.pixelWidth;
-		float maxLine = (this.current.rightLimit) * cam.pixelWidth;
+		float minLine = this.current.leftLimit * cam.pixelWidth;
+		float maxLine = this.current.rightLimit * cam.pixelWidth;
 
 		Vector3 screenPos = cam.WorldToScreenPoint(this.tracking.position);
 
 		float diff = 0;
 		if (screenPos.x > maxLine) {
 			diff = screenPos.x - maxLine;
-		} else if (screenPos.x < minLine)  {
+		} else if (screenPos.x < minLine) {
 			diff = screenPos.x - minLine;
 		} else return;
 
@@ -87,17 +87,13 @@ public class CameraControl : MonoBehaviour {
 
 		Camera cam = Camera.main;
 		
-		float minLine = (this.current.downLimit) * cam.pixelHeight;
-		float maxLine = (this.current.upLimit) * cam.pixelHeight;
+		float minLine = this.current.downLimit * cam.pixelHeight;
+		float maxLine = this.current.upLimit * cam.pixelHeight;
 
 		Vector3 screenPos = cam.WorldToScreenPoint(this.tracking.position);
 
 		float diff = 0;
-		if (screenPos.y > maxLine) {
-			diff = screenPos.y - maxLine;
-		} else if (screenPos.y < minLine) {
-			diff = screenPos.y - minLine;
-		} else return;
+		 
 
 		Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(0f, diff, 0f);	
 		this.transform.position = Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), this.speed);
@@ -108,8 +104,8 @@ public class CameraControl : MonoBehaviour {
 		Camera cam = Camera.main;
 		CameraLimits cc = this.GetAnchoredLimits();
 
-		float left = (cc.leftLimit) * cam.pixelWidth;
-		float right = (cc.rightLimit) * cam.pixelWidth;
+		float left = cc.leftLimit * cam.pixelWidth;
+		float right = cc.rightLimit * cam.pixelWidth;
 
 		this.horizontalAnchorSwitcher(left, right, ref this.switchedH);
 	}
@@ -119,8 +115,8 @@ public class CameraControl : MonoBehaviour {
 		Camera cam = Camera.main;
 		CameraLimits cc = this.GetAnchoredLimits();
 		
-		float down = (cc.downLimit) * cam.pixelHeight;
-		float up = (cc.upLimit) * cam.pixelHeight;
+		float down = cc.downLimit * cam.pixelHeight;
+		float up = cc.upLimit * cam.pixelHeight;
 		
 		this.verticalAnchorSwitcher(up, down, ref this.switchedV);
 	}
