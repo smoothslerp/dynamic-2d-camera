@@ -1,17 +1,16 @@
 ﻿using UnityEngine;
 using UnityEngine.Rendering;
 
+[ExecuteInEditMode]
 public class DebugLines : MonoBehaviour {
     
     Camera cam;
     CameraControl cc;
-
     private Material mat;
     public bool showCameraLines;
-    
-    void Start() {
+
+    void OnEnable() {
         this.cam = GetComponent<Camera>();
-        
         try {
             this.cc = GetComponent<CameraControl>();
         } catch {
@@ -21,8 +20,7 @@ public class DebugLines : MonoBehaviour {
         if (!mat) {
             Shader shader = Shader.Find("Hidden/Internal-Colored");
             mat = new Material(shader);
-        }
-
+        }    
     }
 
     private void OnPostRender() {
@@ -32,9 +30,14 @@ public class DebugLines : MonoBehaviour {
     void CameraDebugLines() {
 
         if (!showCameraLines) return;
-        
-        CameraLimits cL = cc.GetCurrentCameraLimits();
-        
+
+        CameraLimits cL;
+        if (Application.isPlaying) {
+            cL = cc.GetCurrentCameraLimits();
+        } else {
+            cL = cc.GetAnchoredLimits();
+        }
+
         GL.PushMatrix();
         GL.LoadPixelMatrix();
 
