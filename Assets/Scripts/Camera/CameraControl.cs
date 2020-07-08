@@ -93,8 +93,12 @@ public class CameraControl : MonoBehaviour {
 		Vector3 screenPos = cam.WorldToScreenPoint(this.tracking.position);
 
 		float diff = 0;
-		 
-
+		if (screenPos.y > maxLine) {
+			diff = screenPos.y - maxLine;
+		} else if (screenPos.y < minLine) {
+			diff = screenPos.y - minLine;
+		} else return;
+		
 		Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(0f, diff, 0f);	
 		this.transform.position = Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), this.speed);
 	}
