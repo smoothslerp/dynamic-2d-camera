@@ -45,6 +45,18 @@ public class CameraControl : MonoBehaviour {
 	}
 
 	void Start () {
+		if (this.leftLimit > this.rightLimit) {
+			float temp = this.leftLimit;
+			this.leftLimit = this.rightLimit;
+			this.rightLimit = temp;
+		}
+
+		if (this.downLimit > this.upLimit) {
+			float temp = this.downLimit;
+			this.downLimit = this.upLimit;
+			this.upLimit = temp;
+		}
+
 		this.current = new CameraLimits(this.leftLimit, this.rightLimit, this.upLimit, this.downLimit);
 	}
 
@@ -131,7 +143,7 @@ public class CameraControl : MonoBehaviour {
 
 		float down  = this.switchedV ? 1 - this.upLimit : this.downLimit;
 		float up  = this.switchedV ? 1 - this.downLimit : this.upLimit;
-
+		
 		return new CameraLimits(left, right, up, down);
 	}
 
