@@ -776,7 +776,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 148158093}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: level
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3453,10 +3453,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 677690626, guid: cd1c8bd32aa5cdb43b898064ab4cd945, type: 3}
-      propertyPath: maxVerticalSpeed
-      value: 25
-      objectReference: {fileID: 0}
     - target: {fileID: 1280304293939684, guid: cd1c8bd32aa5cdb43b898064ab4cd945, type: 3}
       propertyPath: m_Name
       value: Player
@@ -3505,11 +3501,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 212312561940906934, guid: cd1c8bd32aa5cdb43b898064ab4cd945,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 78b5385c72a07214aad0d8f1f166c3e4, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cd1c8bd32aa5cdb43b898064ab4cd945, type: 3}
 --- !u!1 &608819111
@@ -13637,7 +13628,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a4ea730da78cdd47b3f34e85da09ff2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftLimit: 0.171
+  leftLimit: 0.554
   rightLimit: 0.385
   upLimit: 0.56
   downLimit: 0.289
