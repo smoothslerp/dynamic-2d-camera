@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 [RequireComponent(typeof(Camera))]
 public class CameraControl : MonoBehaviour {
@@ -16,48 +17,33 @@ public class CameraControl : MonoBehaviour {
 	public float speed; 
 	[Range(0f, 1f)]
 	public float switchSpeed;
-
-	/** INSTANCES  */
-	public static CameraControl instance; 
-	private Transform tracking;
-
-	/** DELEGATES */
-	public delegate void AnchorSwitcher(float min, float max, ref bool switchedHV);
-	public AnchorSwitcher horizontalAnchorSwitcher;
-	public AnchorSwitcher verticalAnchorSwitcher;
 	
 	/** STATE */
-	private bool init = false; 
 	private bool switchedH = false;
 	private bool switchedV = false;
 	private CameraLimits current;
-	private Camera mainCamera;
+
+    private Camera mainCamera;
 	private Transform cameraTransform;
 	private Vector2 horizontalNewPosition;
 	private Vector2 verticalNewPosition;
 	private Vector3 screenPosition;
 	private Vector3 horizontalDiff;
 	private Vector3 verticalDiff;
+	private ICameraTarget cameraTarget;
 
-	void Awake() {
-		if (instance == null) {
-			instance = this;
-		}
-
+	public void PreInitialize() {
 		mainCamera = GetComponent<Camera>();
 		cameraTransform = GetComponent<Transform>();
 		horizontalDiff = Vector3.zero;
 		verticalDiff = Vector3.zero;
 	}
 
-	public void Init(Transform tracking, AnchorSwitcher hSwitcher, AnchorSwitcher vSwitcher) {
-		this.tracking = tracking;
-		this.horizontalAnchorSwitcher = hSwitcher;
-		this.verticalAnchorSwitcher = vSwitcher;
-		this.init = this.tracking != null && this.horizontalAnchorSwitcher != null && verticalAnchorSwitcher != null;
+	public void InjectCameraTarget(ICameraTarget cameraTarget) {
+		this.cameraTarget = cameraTarget;
 	}
 
-	void Start () {
+	public void Initialize () {
 		if (this.leftLimit > this.rightLimit) {
 			float temp = this.leftLimit;
 			this.leftLimit = this.rightLimit;
@@ -73,9 +59,9 @@ public class CameraControl : MonoBehaviour {
 		this.current = new CameraLimits(this.leftLimit, this.rightLimit, this.upLimit, this.downLimit);
 	}
 
-	private void FixedUpdate() {
+	public void FixedTick() {
 
-		if (!this.init) {
+		if (this.cameraTarget == null) {
 			Debug.LogError("Camera Control has not been completely intialized!");
 			return;
 		}
@@ -93,7 +79,7 @@ public class CameraControl : MonoBehaviour {
 		float minLine = this.current.leftLimit * mainCamera.pixelWidth;
 		float maxLine = this.current.rightLimit * mainCamera.pixelWidth;
 
-		screenPosition = mainCamera.WorldToScreenPoint(this.tracking.position);
+		screenPosition = mainCamera.WorldToScreenPoint(this.cameraTarget.GetTransform().position);
 
 		float diff = 0;
 		if (screenPosition.x > maxLine) {
@@ -112,7 +98,7 @@ public class CameraControl : MonoBehaviour {
 		float minLine = this.current.downLimit * mainCamera.pixelHeight;
 		float maxLine = this.current.upLimit * mainCamera.pixelHeight;
 
-		screenPosition = mainCamera.WorldToScreenPoint(this.tracking.position);
+		screenPosition = mainCamera.WorldToScreenPoint(this.cameraTarget.GetTransform().position);
 
 		float diff = 0;
 		if (screenPosition.y > maxLine) {
@@ -128,12 +114,18 @@ public class CameraControl : MonoBehaviour {
 
 	private void SwitchHorizontalAnchor () {
 
-		CameraLimits cc = this.GetAnchoredLimits();
+		var targetVelocity = this.cameraTarget.GetVelocity();
+		var targetMaxSpeed = this.cameraTarget.GetMaxSpeed();
 
-		float left = cc.leftLimit * mainCamera.pixelWidth;
-		float right = cc.rightLimit * mainCamera.pixelWidth;
+		if (cameraTarget.GetFacingValue() < 0 && Mathf.Abs(targetVelocity.x) >= targetMaxSpeed.x * .5f)
+		{
+			switchedH = true;
+		}
 
-		this.horizontalAnchorSwitcher(left, right, ref this.switchedH);
+		if (cameraTarget.GetFacingValue() > 0 && Mathf.Abs(targetVelocity.x) >= targetMaxSpeed.x * .5f)
+		{
+			switchedH = false;
+		}
 	}
 
 	private void SwitchVerticalAnchor () {
@@ -142,8 +134,21 @@ public class CameraControl : MonoBehaviour {
 		
 		float down = cc.downLimit * mainCamera.pixelHeight;
 		float up = cc.upLimit * mainCamera.pixelHeight;
-		
-		this.verticalAnchorSwitcher(up, down, ref this.switchedV);
+		float mid = (up + down) * .5f;
+
+		Vector3 targetScreenPosition = Camera.main.WorldToScreenPoint(this.cameraTarget.GetTransform().position);
+		var targetVelocity = this.cameraTarget.GetVelocity();
+		var targetMaxSpeed = this.cameraTarget.GetMaxSpeed();
+
+		if (targetScreenPosition.y < mid && Mathf.Abs(targetVelocity.y) >= targetMaxSpeed.y)
+		{ // on the way down, want to see down
+			switchedV = true;
+		}
+
+		if (targetScreenPosition.y > mid && Mathf.Abs(targetVelocity.y) >= targetMaxSpeed.y * .25f)
+		{ // on the way up, want to see up
+			switchedV = false;
+		}
 	}
 
 	public CameraLimits GetAnchoredLimits() {
