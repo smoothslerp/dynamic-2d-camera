@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+[RequireComponent(typeof(Camera))]
 public class CameraControl : MonoBehaviour {
 
 	/** SETTINGS */
@@ -30,11 +31,14 @@ public class CameraControl : MonoBehaviour {
 	private bool switchedH = false;
 	private bool switchedV = false;
 	private CameraLimits current;
+	private Camera mainCamera;
 
 	void Awake() {
 		if (instance == null) {
 			instance = this;
 		}
+
+		mainCamera = GetComponent<Camera>();
 	}
 
 	public void Init(Transform tracking, AnchorSwitcher hSwitcher, AnchorSwitcher vSwitcher) {
@@ -76,13 +80,11 @@ public class CameraControl : MonoBehaviour {
 	}
 
 	private void horizontalCameraMovement () {
-
-		Camera cam = Camera.main;
 		
-		float minLine = this.current.leftLimit * cam.pixelWidth;
-		float maxLine = this.current.rightLimit * cam.pixelWidth;
+		float minLine = this.current.leftLimit * mainCamera.pixelWidth;
+		float maxLine = this.current.rightLimit * mainCamera.pixelWidth;
 
-		Vector3 screenPos = cam.WorldToScreenPoint(this.tracking.position);
+		Vector3 screenPos = mainCamera.WorldToScreenPoint(this.tracking.position);
 
 		float diff = 0;
 		if (screenPos.x > maxLine) {
@@ -91,18 +93,16 @@ public class CameraControl : MonoBehaviour {
 			diff = screenPos.x - minLine;
 		} else return;
 
-		Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(diff, 0f, 0f);
-		this.transform.position = Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), this.speed);
+		Vector3 newPosition = mainCamera.WorldToScreenPoint(this.transform.position) + new Vector3(diff, 0f, 0f);
+		this.transform.position = Vector3.Lerp(this.transform.position, mainCamera.ScreenToWorldPoint(newPosition), this.speed);
 	}
 
 	private void verticalCameraMovement () { 
-
-		Camera cam = Camera.main;
 		
-		float minLine = this.current.downLimit * cam.pixelHeight;
-		float maxLine = this.current.upLimit * cam.pixelHeight;
+		float minLine = this.current.downLimit * mainCamera.pixelHeight;
+		float maxLine = this.current.upLimit * mainCamera.pixelHeight;
 
-		Vector3 screenPos = cam.WorldToScreenPoint(this.tracking.position);
+		Vector3 screenPos = mainCamera.WorldToScreenPoint(this.tracking.position);
 
 		float diff = 0;
 		if (screenPos.y > maxLine) {
@@ -111,28 +111,26 @@ public class CameraControl : MonoBehaviour {
 			diff = screenPos.y - minLine;
 		} else return;
 
-		Vector3 newPosition = cam.WorldToScreenPoint(this.transform.position) + new Vector3(0f, diff, 0f);	
-		this.transform.position = Vector3.Lerp(this.transform.position, cam.ScreenToWorldPoint(newPosition), this.speed);
+		Vector3 newPosition = mainCamera.WorldToScreenPoint(this.transform.position) + new Vector3(0f, diff, 0f);	
+		this.transform.position = Vector3.Lerp(this.transform.position, mainCamera.ScreenToWorldPoint(newPosition), this.speed);
 	}
 
 	private void SwitchHorizontalAnchor () {
 
-		Camera cam = Camera.main;
 		CameraLimits cc = this.GetAnchoredLimits();
 
-		float left = cc.leftLimit * cam.pixelWidth;
-		float right = cc.rightLimit * cam.pixelWidth;
+		float left = cc.leftLimit * mainCamera.pixelWidth;
+		float right = cc.rightLimit * mainCamera.pixelWidth;
 
 		this.horizontalAnchorSwitcher(left, right, ref this.switchedH);
 	}
 
 	private void SwitchVerticalAnchor () {
 
-		Camera cam = Camera.main;
 		CameraLimits cc = this.GetAnchoredLimits();
 		
-		float down = cc.downLimit * cam.pixelHeight;
-		float up = cc.upLimit * cam.pixelHeight;
+		float down = cc.downLimit * mainCamera.pixelHeight;
+		float up = cc.upLimit * mainCamera.pixelHeight;
 		
 		this.verticalAnchorSwitcher(up, down, ref this.switchedV);
 	}
