@@ -32,6 +32,7 @@ public class CameraControl : MonoBehaviour {
 	private bool switchedV = false;
 	private CameraLimits current;
 	private Camera mainCamera;
+	private Transform cameraTransform;
 
 	void Awake() {
 		if (instance == null) {
@@ -39,6 +40,7 @@ public class CameraControl : MonoBehaviour {
 		}
 
 		mainCamera = GetComponent<Camera>();
+		cameraTransform = GetComponent<Transform>();
 	}
 
 	public void Init(Transform tracking, AnchorSwitcher hSwitcher, AnchorSwitcher vSwitcher) {
@@ -93,8 +95,8 @@ public class CameraControl : MonoBehaviour {
 			diff = screenPos.x - minLine;
 		} else return;
 
-		Vector3 newPosition = mainCamera.WorldToScreenPoint(this.transform.position) + new Vector3(diff, 0f, 0f);
-		this.transform.position = Vector3.Lerp(this.transform.position, mainCamera.ScreenToWorldPoint(newPosition), this.speed);
+		Vector3 newPosition = mainCamera.WorldToScreenPoint(this.cameraTransform.position) + new Vector3(diff, 0f, 0f);
+		this.cameraTransform.position = Vector3.Lerp(this.cameraTransform.position, mainCamera.ScreenToWorldPoint(newPosition), this.speed);
 	}
 
 	private void verticalCameraMovement () { 
@@ -111,8 +113,8 @@ public class CameraControl : MonoBehaviour {
 			diff = screenPos.y - minLine;
 		} else return;
 
-		Vector3 newPosition = mainCamera.WorldToScreenPoint(this.transform.position) + new Vector3(0f, diff, 0f);	
-		this.transform.position = Vector3.Lerp(this.transform.position, mainCamera.ScreenToWorldPoint(newPosition), this.speed);
+		Vector3 newPosition = mainCamera.WorldToScreenPoint(this.cameraTransform.position) + new Vector3(0f, diff, 0f);	
+		this.cameraTransform.position = Vector3.Lerp(this.cameraTransform.position, mainCamera.ScreenToWorldPoint(newPosition), this.speed);
 	}
 
 	private void SwitchHorizontalAnchor () {
