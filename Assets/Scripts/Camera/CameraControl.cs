@@ -79,8 +79,8 @@ public class CameraControl : MonoBehaviour {
 			Debug.LogError("Camera Control has not been completely intialized!");
 			return;
 		}
-		verticalCameraMovement();
-		horizontalCameraMovement();
+		moveVertically();
+		moveHorizontally();
 
 		SwitchHorizontalAnchor();
 		SwitchVerticalAnchor();
@@ -88,7 +88,7 @@ public class CameraControl : MonoBehaviour {
 		MoveCurrentLimits();
 	}
 
-	private void horizontalCameraMovement () {
+	private void moveHorizontally () {
 		
 		float minLine = this.current.leftLimit * mainCamera.pixelWidth;
 		float maxLine = this.current.rightLimit * mainCamera.pixelWidth;
@@ -107,7 +107,7 @@ public class CameraControl : MonoBehaviour {
 		this.cameraTransform.position = Vector3.Lerp(this.cameraTransform.position, mainCamera.ScreenToWorldPoint(horizontalNewPosition), this.speed);
 	}
 
-	private void verticalCameraMovement () { 
+	private void moveVertically () { 
 		
 		float minLine = this.current.downLimit * mainCamera.pixelHeight;
 		float maxLine = this.current.upLimit * mainCamera.pixelHeight;
