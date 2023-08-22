@@ -12,9 +12,16 @@ public class GameManager : MonoBehaviour {
 	public static GameManager GetInstance() {
 		return instance;
 	}
+
+	private Player player;
+	private CameraControl cameraControl;
 	
 	void Awake() {
 		if (!instance) instance = this;
+
+		player = FindObjectOfType<Player>();
+		cameraControl = FindObjectOfType<CameraControl>();
+		cameraControl.PreInitialize();
 	}
 
 	void Start () {
@@ -23,12 +30,23 @@ public class GameManager : MonoBehaviour {
 		// ignore coll with defualt layer
         Physics2D.IgnoreLayerCollision(11, 0);
 		// Physics2D.SetLayerCollisionMask(11, 9);
+
+		player.Initialize();
+		cameraControl.Initialize();
+		cameraControl.InjectCameraTarget(player);
 	}
 
-	void Update () {
+    void FixedUpdate()
+    {
+		cameraControl.FixedTick();
+    }
+
+    void Update () {
 		if (Input.GetKeyDown(KeyCode.M)) {
 			  SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 		}
+
+		player.Tick();
 	}
 	
 }

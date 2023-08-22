@@ -2,7 +2,7 @@
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour, ICameraTarget {
 
 	/** STATE */
 	private int facing = 1;
@@ -16,23 +16,20 @@ public class Player : MonoBehaviour {
 	private BoxCollider2D boxCollider;
 	private Animator animator;
 	private Movement playerMovement;
+	private Transform playerTransform;
 
-	void Start () {
+	public void Initialize () {
+		this.playerTransform = GetComponent<Transform>();
 		this.rb = this.GetComponent<Rigidbody2D>();
 		this.boxCollider = this.GetComponent<BoxCollider2D>();
 		this.animator = this.transform.GetChild(0).GetComponent<Animator>();
-		
 		this.playerMovement = GetComponent<Movement>();
 		this.playerMovement.Init(this.rb);
-
-		this.spriteRenderer = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
-
-		CameraControl.instance.Init(this.transform, this.HorizontalAnchorSwitcher, this.VerticalAnchorSwitcher);
-		
+		this.spriteRenderer = this.transform.GetChild(0).GetComponent<SpriteRenderer>();		
 		this.animator.SetBool("IsRunning", false);
 	}
 
-	void Update() {
+	public void Tick() {
 		jumpInput();
 		
 		this.ChangeFaceDirection(PlayerControl.instance.horizontalInput);
@@ -67,33 +64,24 @@ public class Player : MonoBehaviour {
 		this.facing = horizontalInput > 0 ? 1 : -1;
 		this.spriteRenderer.flipX = facing < 0 ? true : false;
 	}
-	
-	// Passed as delegate to camera control
-	public void HorizontalAnchorSwitcher(float left, float right, ref bool switchedH) {
-		Vector3 playerScreenPos = Camera.main.WorldToScreenPoint(this.transform.position);
-		
-		if (this.facing < 0 && Mathf.Abs(this.rb.velocity.x) >= (this.playerMovement.maxHorizontalSpeed/2f)) {
-			switchedH = true;
-		}
-		
-		if (this.facing > 0 && Mathf.Abs(this.rb.velocity.x) >= this.playerMovement.maxHorizontalSpeed/2f) {
-			switchedH = false;
-		}
-	}
 
-	// Passed as delegate to camera control	
-	public void VerticalAnchorSwitcher(float up, float down, ref bool switchedV) {
-		float mid = (up + down)/2f;
+    public Transform GetTransform()
+    {
+		return this.playerTransform;
+    }
 
-		Vector3 playerScreenPos = Camera.main.WorldToScreenPoint(this.transform.position);
-		
-		if (playerScreenPos.y < mid && Mathf.Abs(this.rb.velocity.y) >= this.playerMovement.maxVerticalSpeed) { // on the way down, want to see down
-			switchedV = true;
-		}
-		
-		if (playerScreenPos.y > mid && Mathf.Abs(this.rb.velocity.y) >= this.playerMovement.maxVerticalSpeed/4f) { // on the way up, want to see up
-			switchedV = false;
-		}
-	}
+    public int GetFacingValue()
+    {
+		return this.facing;
+    }
 
+    public Vector2 GetVelocity()
+    {
+		return rb.velocity;
+    }
+
+    public Vector2 GetMaxSpeed()
+    {
+		return new Vector2(playerMovement.maxHorizontalSpeed, playerMovement.maxVerticalSpeed);
+    }
 }
